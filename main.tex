@@ -1,0 +1,116 @@
+% ── 文档类与导言区 ─────────────────────────────────────
+\documentclass[12pt, a4paper]{article}
+
+% 必须的宏包
+\usepackage[utf8]{inputenc}       % 编码
+\usepackage{ctex}                 % 中文支持（中文报告必须加！）
+\usepackage{amsmath, amssymb}     % 数学公式
+\usepackage{graphicx}             % 插图
+\usepackage{booktabs}             % 三线表（论文标准表格）
+\usepackage{hyperref}             % 超链接
+\usepackage{cite}                 % 参考文献
+\usepackage{algorithm2e}          % 算法伪代码
+\usepackage[margin=2.5cm]{geometry} % 页边距
+
+% 标题信息
+\title{基于大模型的电子邮件自动回复研究}
+\author{牛铭岑\\ 四川大学 \\ \texttt{niumingcen@gmail.com}}
+\date{\today}
+
+% ── 正文 ───────────────────────────────────────────────
+\begin{document}
+\maketitle
+\newpage 
+% 中文摘要
+\begin{abstract}
+随着大语言模型在写作、翻译等领域的广泛应用，其用在提高邮件回复效率有着巨大的作用。现有的垃圾邮件检测方案和电子邮件自动回复的方案在使用效果上面有较好的表现。但是随着人工智能的兴起和攻击者手段的复杂变化，传统的检测方案以及回复方案已不能满足人们的普遍需要。因此，本文深入研究了各种技术的优缺点，提出将已有模块替换为高效的LSTM和LLaMA模块。通过深入分析神经网络模型和大语言模型的实现原理和数学实现，了解其高效优秀表现的特性，设计并实现了一种基于LSTM和LLaMA的垃圾邮件检测系统和电子邮件自动回复系统。训练结果和实验结果都表明，改进后的方案在判断和回复上，保持着原有方案的准确性，又有着高效性，提高了相关技术在实际生活中的落地应用，方便人们日常的使用。
+\end{abstract}
+\textbf{关键词：} 大语言模型；深度学习；长短期记忆；垃圾邮件检测；邮件自动回复
+
+\newpage 
+\vspace{10pt}
+% 英文摘要
+% ===== 英文摘要 =====
+\renewcommand{\abstractname}{Abstract} % 把摘要标题临时改成英文
+\begin{abstract}
+With the wide application of large language models in fields such as writing and translation, they play a huge role in improving the efficiency of email responses. The existing spam detection schemes and automatic email reply schemes have performed well in terms of application effects. However, with the rise of artificial intelligence and the complex changes in attackers' methods, traditional detection schemes and response schemes can no longer meet people's common needs. Therefore, this paper conducts an in-depth study of the advantages and disadvantages of various technologies and proposes to replace the existing modules with efficient LSTM and LLaMA modules. By deeply analyzing the implementation principles and mathematical implementations of neural network models and large language models, understanding their characteristics of efficient and excellent performance, a spam detection system and an automatic email reply system based on LSTM and LLaMA were designed and implemented. Both the training results and the experimental results show that the improved scheme maintains the accuracy and efficiency of the original scheme in judgment and response, improves the practical application of related technologies in real life, and facilitates People's Daily use.
+\end{abstract}
+\textbf{Keywords:} Large language model; deep learning; Long short-term memory; spam detection; Automatic Email Reply
+\newpage 
+\tableofcontents   % 自动生成目录
+\newpage
+
+% ── 章节结构 ──────────────────────────────────────────
+\section{引言}
+\subsection{研究背景}
+自1971年电子邮件被发明出来之后，它的地位始终没有被任何新生的互联网产品彻底取代，当下电子邮件的使用几乎渗透到生活的方方面面，成为人们在网上进行沟通以及企业进行综合管理的关键载体之一，据相关统计，截止到2024年，全球电子邮件用户数量达到了44.8亿个，世界上超过一半的人都在使用电子邮件。随着互联网接入范围的持续扩大，自2017年起，全球每日电子邮件的交互量逐年攀升，目前每日电子邮件流量超过3473亿封，这一数据说明，尽管替代的通信工具不断出现，但巨大的日常使用量以及全球范围内数量众多的用户为电子邮件行业的持续发展提供了动力。
+
+\subsection{主要工作}
+本报告的主要工作如下：
+\begin{enumerate}
+    \item 本论文开篇先阐述了电子邮件庞大的使用人数以及极为广泛的使用场景，同时还提及在当下大模型时代背景下，如诈骗邮件等一系列安全问题随之出现，基于此，论证了运用技术实现垃圾邮件识别以及借助大模型实现自动回复的高效性的必要性，接下来从两个方面着手，分别对相关技术的发展历程给予介绍。详细而言，深度学习模型以及大语言模型在垃圾邮件识别与自动回复方面有高效的能力，采用深度学习模型进行邮件回复，能呈现出较高的效率，鉴于此，本论文运用LSTM和LLaMA相关技术来开展系统的研究工作。
+    \item 其次，本论文详细介绍了LSTM和LLaMA的发展的过程和其详细的实现原理以及其数学实现。LSTM相较于其他神经网络模型，通过引入记忆单元和门控机制，能够有效缓解存在梯度消失和梯度爆炸问题，从而更好地获取到时间序列中的长期相互依存的关系，既适合学习长期模式，也能保留短期特征，因此在判断垃圾邮件的表现会更优秀。LLaMA采用并优化了transformer架构，通过优秀的RMS norm，RoPE，GQA等机制，在训练上更加准确，推理更加快速，增强了大模型的表现能力。为后续的具体实现提供了理论基础。
+    \item 然后，为了可以证明相关技术可以应用到系统当中，描述整个架构及其流程图，对不同模块进行分析。分析了如SMTP等邮件协议及其使用，寻找相对应用于训练的数据集和高效的模型。对于不同的模块，用相对应的神经网络模型进行替换。为了验证系统的可行性，分别对于不同的邮箱系统进行测试，用正常邮件和垃圾邮件等分别进行测试。通过详细的实验设计和数据分析，评估了该模型在系统中的表现，验证了其在准确判断诈骗邮件的的同时，能够准确并生动的对相关的邮件内容进行回复。
+\end{enumerate}
+
+
+% ── 公式 ──────────────────────────────────────────────
+\section{方法}
+\subsection{LSTM的基本思想}
+传统RNN模型存在局限性，1997年Hochreiter等人\cite{hochreiter1997lstm}提出一种改进型循环神经网络架构的长短期记忆网络，它有长期依赖学习能力。该模型历经二十余年不断优化发展，在理论方面有突破性进展，在众多实际应用领域也呈现出卓越性能，成为深度学习领域关键里程碑。
+
+长短期记忆网络属于改进后的循环神经网络架构，凭借其特有的门控机制，有效化解了传统RNN模型面临的长期依赖难题，此网络可以相对较低的计算成本，达成远距离信息的持久存储与传递。LSTM的结构图如图\ref{fig:lstm-structure}所示：
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\linewidth]{image.png}
+    \caption{LSTM结构图}
+    \label{fig:lstm-structure}
+\end{figure}
+
+\subsection{LLaMa}
+2024年，Meta发布并开源了LLaMA3\cite{devlin2018bert}系列模型，Llama 3模型以标准的Transformer架构为基础，做出了诸多改进，有了更高的效率以及更好的性能。
+
+归一化层的主要目的在于凭借对数据分布以及尺度加以调整，以此提高模型训练的稳定性以及效率，llama3所采用的Normalize方式称作RMSNorm，其全称为Root Mean Square Layer Normalization，相较于LayerNorm，\cite{raffel2023exploring}它摒弃了对均值的计算以及偏置项参数，可减少计算量。RMSNorm的核心观念是对输入特征给予归一化，让它们有统一的均方根。
+
+计算均方根 (RMS): 对于输入向量 x，首先计算它的均方根：
+\begin{equation}
+\mathrm{RMS}(x) = \sqrt{\frac{1}{d} \sum_{i=1}^{d} x_i^2}
+\end{equation}
+
+% ── 图片插入 ──────────────────────────────────────────
+\section{实验}
+\subsection{实验设置}
+LSTM模型训练以及llama3模型训练均运用python语言，借助相关库与组件得以完成，在模型指标方面，LSTM训练选用了loss率等指标，大模型训练里的loss率也就是损失值，它是用以衡量模型预测结果与真实值之间误差的核心指标，其数值越低，意味着模型对训练数据的拟合程度越高。在训练进程中，loss借助反向传播来指导模型参数的更新方向，就像在分类任务中大多时候采用交叉熵损失函数来衡量预测分布与真实标签的差异，借助观察loss曲线的变化情况，可判断训练状态：正常情形下loss应当逐步下降，要是出现剧烈波动，可能说明训练不稳定，要是训练集的loss持续降低但验证集的loss却上升，那么可能存在过拟合风险。而且loss的收敛趋势也可反映模型性能的潜力，研究显示预训练loss的降低一般会随着着下游任务效果的提升，loss率是监控模型学习能力、优化训练策略的关键依据。
+
+
+大模型训练里的accuracy率也就是准确率，其指的是模型预测正确的样本数量在总样本数量当中所占的比例，大多时候被用来衡量分类任务的整体性能表现，比如说，在多分类任务这个场景下，accuracy是借助计算对角线上正确分类样本数同总样本数的比值，以此来反映模型全局预测的实际效果。该指标有简单直观的特点，适用于类别分布处于均衡状态的数据集，一般情况下数值越高就意味着模型性能越出色。
+% ── 三线表 ──────────────────────────────────────────
+\subsection{结果对比}
+自回归模型生成回答时，需要前面生成的KV缓存起来，来加速计算。多头注意力机制(MHA)需要的缓存量很大，Multi-Query Attention指出多个头之间可以共享KV对。Group Query Attention没有像MQA一样极端，将query分组，组内共享KV，效果接近MHA，速度上与MQA可比较
+\begin{table}[htbp]
+\centering
+\caption{Model performance and inference latency}
+\label{tab:results}
+\begin{tabular}{lcccccccccc}
+\toprule
+Model & $\text{T}_\text{infer}$ & Average & CNN & arXiv & PubMed & MediaSum & MultiNews & WMT  \\
+\midrule
+MHA-Large & 0.37 & 46.0 & 42.9 & 44.6 & 46.2 & 35.5 & 46.6 & 27.7  \\
+MHA-XXL & 1.51 & 47.2 & 43.8 & 45.6 & 47.5 & 36.4 & 46.9 & 28.4  \\
+MQA-XXL & 0.24 & 46.6 & 43.0 & 45.0 & 46.9 & 36.1 & 46.5 & 28.5  \\
+GQA-8-XXL & 0.28 & 47.1 & 43.5 & 45.4 & 47.7 & 36.3 & 47.2 & 28.4  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+如表~\ref{tab:results} ，Inference time and average dev set performance comparison of T5 Large and XXL models with multi-head
+attention
+
+\newpage
+
+% ── 参考文献 ──────────────────────────────────────────
+\bibliographystyle{plain}   % 引用格式
+\bibliography{references}   % 对应 references.bib 文件
+
+\end{document}
